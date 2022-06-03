@@ -1,5 +1,2 @@
 # Node.js dependencies:
 node_modules/
-
-# GCP project credentials
-secret.json
