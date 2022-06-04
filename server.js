@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import api from './api/app.js';
 
 const app = express();
 app.enable('trust proxy');
@@ -10,8 +11,10 @@ app.use(bodyParser.json());
 
 const PORT = process.env.PORT || 8080;
 
-app.get("/", async (request, response) => {
-  response.status(200).send('Hello world!');
+app.use('/api', api);
+
+app.all('*', (req, res) => {
+  res.status(404).send('Not Found');
 });
 
 // Start server
