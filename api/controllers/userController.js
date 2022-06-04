@@ -1,11 +1,5 @@
-import dotenv from 'dotenv';
 import userModel from '../models/userModel.js';
 import { checkAcceptJson } from './controllerHelpers.js';
-import {
-  invalidLogin,
-} from '../customErrors.js';
-
-dotenv.config();
 
 const userController = {
 
@@ -23,10 +17,24 @@ const userController = {
   post: async (req, res, next) => {
     try {
       checkAcceptJson(req);
+      const { name, email, password } = req.body;
+      const userData = await userModel.createUser(name, email, password);
+      res
+        .status(201)
+        .set('Content-Type', 'application/json')
+        .send(userData);
+
+    } catch (err) {
+      console.error(err);
+      next(err);
+    }
+  },
+
+  login: async (req, res, next) => {
+    try {
+      checkAcceptJson(req);
       const { username, password } = req.body;
       const authData = await userModel.login(username, password);
-      if (!authData) throw invalidLogin;
-
       res
         .status(200)
         .set('Content-Type', 'application/json')

@@ -1,28 +1,60 @@
-import * as database from './modelHelpers.js';
-import fetch from 'node-fetch';
+import * as database from './database.js';
+import { API_URL } from '../constants.js';
+import { createUserAuth0, loginAuth0, checkJWT } from './auth0.js';
+import { 
+  missingRequiredProperty,
+  invalidLogin,
+} from '../customErrors.js';
+import jwt_decode from 'jwt-decode';
+
+const USER = 'user';
 
 const userModel = {
-  login: async (username, password) => {
-    const authRes = await fetch(
-      'https://pick-me-up.us.auth0.com/oauth/token',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          "grant_type": "password",
-          "username": username,
-          "password": password,
-          "client_id": process.env.CLIENT_ID,
-          "client_secret": process.env.CLIENT_SECRET
-        })
-      })
 
-    const authResJson = await authRes.json();
-    if (authRes.status === 200)
-      return authResJson;
+  createUser: async (name, email, password) => {
+
+    if (!name || !email || !password) throw missingRequiredProperty;
+    const response = await createUserAuth0(name, email, password);
+
+    const userData = {
+      name: response.name,
+      email: response.email,
+    }
+
+    const userId = await database.create(USER, {
+      auth0Id: response.identities[0].user_id,
+      ...userData
+    });
+
+    return displayUser(userId, userData);
+  },
+
+  login: async (username, password) => {
+
+    if (!username || !password) throw invalidLogin;
+    const response = await loginAuth0(username, password);
+
+    const { email, name, sub } = jwt_decode(response.id_token);
+    const auth0Id = sub.slice(6); // remove "auth0|"
+
+    const foundUser = (await database.query(USER, 'auth0Id', auth0Id))[0];
+
+    if (!foundUser) throw invalidLogin;
+
+    return {
+      userId: database.getId(foundUser),
+      name: foundUser.name,
+      email: foundUser.email,
+      jwt: response.id_token
+    }
+  }
+}
+
+const displayUser = (userId, userData) => {
+  return {
+    userId: userId,
+    ...userData,
+    self: `${API_URL}/users/${userId}`
   }
 }
 

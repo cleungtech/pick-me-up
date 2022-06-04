@@ -4,6 +4,10 @@ import {
   serverError, 
   invalidLogin,
   notAcceptable,
+  missingRequiredProperty,
+  userAlreadyExist,
+  invalidEmailFormat,
+  passwordTooWeak,
 } from './customErrors.js';
 
 const api = express.Router();
@@ -12,6 +16,12 @@ api.use('/users', userRoutes);
 
 api.use((err, req, res, next) => {
   switch (err) {
+    case missingRequiredProperty:
+    case userAlreadyExist:
+    case invalidEmailFormat:
+    case passwordTooWeak:
+      res.status(400);
+      break;
     case invalidLogin:
       res.status(403);
       break;
