@@ -3,11 +3,14 @@ import { checkAcceptJson } from './controllerHelpers.js';
 
 const userController = {
 
-  get: (req, res, next) => {
+  get: async (req, res, next) => {
     try {
-      response
+      checkAcceptJson(req);
+      const usersData = await userModel.viewAllUsers();
+      res
         .status(200)
-        .send('Testing Controllers');
+        .set('Content-Type', 'application/json')
+        .send(usersData);
 
     } catch (err) {
       next(err);
@@ -25,7 +28,6 @@ const userController = {
         .send(userData);
 
     } catch (err) {
-      console.error(err);
       next(err);
     }
   },

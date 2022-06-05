@@ -11,6 +11,19 @@ const USER = 'user';
 
 const userModel = {
 
+  viewAllUsers: async () => {
+    const foundUsers = await database.query(USER);
+    const usersData = foundUsers.map(user => {
+      const userId = database.getId(user);
+      const userData = {
+        name: user.name,
+        email: user.email,
+      };
+      return displayUser(userId, userData);
+    })
+    return usersData;
+  },
+
   createUser: async (name, email, password) => {
 
     if (!name || !email || !password) throw missingRequiredProperty;

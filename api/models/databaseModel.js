@@ -39,7 +39,11 @@ const create = async (kind, data) => {
 
 // Query all entities matching a particular attribute
 const query = async (kind, attribute, value) => {
-  const query = datastore.createQuery(kind).filter(attribute, '=', value);
+
+  let query = datastore.createQuery(kind);
+  if (attribute && value)
+    query = query.filter(attribute, '=', value);
+  
   const [ entities ] = await datastore.runQuery(query);
   return entities;
 }
