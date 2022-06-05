@@ -12,7 +12,7 @@ const USER = 'user';
 const userModel = {
 
   viewAllUsers: async () => {
-    const foundUsers = await database.query(USER);
+    const foundUsers = await database.queryAll(USER);
     const usersData = foundUsers.map(user => {
       const userId = database.getId(user);
       const userData = {
@@ -50,7 +50,7 @@ const userModel = {
     const { email, name, sub } = jwt_decode(response.id_token);
     const auth0Id = sub.slice(6); // remove "auth0|"
 
-    const foundUser = (await database.query(USER, 'auth0Id', auth0Id))[0];
+    const foundUser = (await database.queryAll(USER, 'auth0Id', auth0Id))[0];
     if (!foundUser) throw invalidLogin;
 
     return database.displayEntity(database.getId(foundUser), {

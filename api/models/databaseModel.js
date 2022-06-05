@@ -38,8 +38,31 @@ const view = async (kind, id) => {
   return entity;
 }
 
+// Get all entities (with pagination)
+const viewAll = async (kind, numPerPage, pageCursor) => {
+
+  const count = (await queryAll(kind)).length;
+  
+  let query = datastore.createQuery(kind).limit(numPerPage);
+  if (pageCursor) {
+    query = query.start(decodeURIComponent(pageCursor));
+  }
+  const [ entities, info ] = await datastore.runQuery(query);
+
+  const results = { total: count };
+  results[`${kind}s`] = entities.map(entity => 
+    displayEntity(getId(entity), entity, kind)
+  );
+
+  if (info.moreResults === 'MORE_RESULTS_AFTER_LIMIT') {
+    results.next = getNextUrl(kind, info.endCursor);
+  }
+
+  return results;
+}
+
 // Query all entities matching a particular attribute
-const query = async (kind, attribute, value) => {
+const queryAll = async (kind, attribute, value) => {
 
   let query = datastore.createQuery(kind);
   if (attribute && value)
@@ -74,12 +97,19 @@ const displayEntity = (id, data, kind) => {
   }
 }
 
+const getNextUrl = (kind, endCursor) => {
+  let nextUrl = `${API_URL}${kind}s`;
+  nextUrl += `?cursor=${encodeURIComponent(endCursor)}`;
+  return nextUrl;
+}
+
 export {
   getId,
   create,
   view,
+  viewAll,
   // update,
   // remove,
-  query,
+  queryAll,
   displayEntity,
 }

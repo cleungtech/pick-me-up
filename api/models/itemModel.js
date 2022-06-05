@@ -8,20 +8,16 @@ import {
 import { isNumberObject } from 'util/types';
 
 const ITEM = 'item';
+const ITEMS_PER_PAGE = 5;
 
 const itemModel = {
 
-  viewAllItems: async () => {
-    // const foundItems = await database.query(USER);
-    // const itemsData = foundItems.map(item => {
-    //   const itemId = database.getId(item);
-    //   const itemData = {
-    //     name: item.name,
-    //     email: item.email,
-    //   };
-    //   return displayItem(itemId, itemData);
-    // })
-    // return itemsData;
+  viewAllItems: async (limit, cursor) => {
+
+    const numPerPage = limit ? limit : ITEMS_PER_PAGE;
+    const foundItems = await database.viewAll(ITEM, numPerPage, cursor);
+
+    return foundItems;
   },
 
   createItem: async (name, price, inventory) => {
@@ -35,7 +31,7 @@ const itemModel = {
     if (!Number.isInteger(inventory) || inventory < 0)
       throw invalidInventory;
 
-    const foundItem = await database.query(ITEM, 'name', name);
+    const foundItem = await database.queryAll(ITEM, 'name', name);
     if (foundItem.length > 0) throw nameNotUnique;
 
     const itemData = {
