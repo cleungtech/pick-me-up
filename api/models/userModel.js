@@ -6,7 +6,6 @@ import {
   forbidden,
 } from '../customErrors.js';
 import jwt_decode from 'jwt-decode';
-import { displayEntity } from './databaseModel.js';
 
 const USER = 'user';
 
@@ -20,7 +19,7 @@ const userModel = {
         name: user.name,
         email: user.email,
       };
-      return displayEntity(userId, userData, USER);
+      return database.displayEntity(userId, userData, USER);
     })
     return usersData;
   },
@@ -40,7 +39,7 @@ const userModel = {
       ...userData
     });
 
-    return displayEntity(userId, userData, USER);
+    return database.displayEntity(userId, userData, USER);
   },
 
   login: async (username, password) => {
@@ -54,7 +53,7 @@ const userModel = {
     const foundUser = (await database.query(USER, 'auth0Id', auth0Id))[0];
     if (!foundUser) throw invalidLogin;
 
-    return displayEntity(database.getId(foundUser), {
+    return database.displayEntity(database.getId(foundUser), {
         name: foundUser.name,
         email: foundUser.email,
         jwt: response.id_token
@@ -66,7 +65,7 @@ const userModel = {
     if (!foundUser) throw notFound;
     if (foundUser.auth0Id !== auth0Id) throw forbidden;
 
-    return displayEntity(database.getId(foundUser), {
+    return database.displayEntity(database.getId(foundUser), {
       name: foundUser.name,
       email: foundUser.email,
     }, USER);

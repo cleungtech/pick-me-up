@@ -3,6 +3,9 @@ const missingRequiredProperty = new Error('Missing at least one required propert
 const userAlreadyExist = new Error('User with this email already exists');
 const invalidEmailFormat = new Error('Provided email is not valid');
 const passwordTooWeak = new Error('Provided password is too weak');
+const invalidPrice = new Error('Price must be a number');
+const invalidInventory = new Error('Inventory must be an non-negative integer');
+
 
 // Error code: 401
 const invalidToken = new Error('Missing or invalid authorization token')
@@ -36,6 +39,8 @@ const handleErrors = (err, res) => {
       case userAlreadyExist:
       case invalidEmailFormat:
       case passwordTooWeak:
+      case invalidPrice:
+      case invalidInventory:
         res.status(400);
         break;
       case invalidToken:
@@ -77,5 +82,7 @@ export {
   invalidToken,
   forbidden,
   invalidMethod,
+  invalidPrice,
+  invalidInventory,
   handleErrors,
 }

@@ -12,7 +12,6 @@ const checkAcceptJson = (req) => {
 const invalidHttpMethod = (allowedMethods) => 
   (req, res, next) => {
     try {
-      console.log(allowedMethods);
       res.set('Accept', allowedMethods);
       throw invalidMethod;
 
