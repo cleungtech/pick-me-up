@@ -1,10 +1,41 @@
-const serverError = new Error('Internal Server Error');
-const invalidLogin = new Error('Invalid username and/or password');
-const notAcceptable = new Error('Accept header must include application/json');
+// Error code: 400
 const missingRequiredProperty = new Error('Missing at least one required property in the body');
 const userAlreadyExist = new Error('User with this email already exists');
 const invalidEmailFormat = new Error('Provided email is not valid');
 const passwordTooWeak = new Error('Provided password is too weak');
+
+// Error code: 403
+const invalidLogin = new Error('Invalid username and/or password');
+
+// Error code: 406
+const notAcceptable = new Error('Accept header must include application/json');
+
+// Error code: 500
+const serverError = new Error('Internal Server Error');
+
+const handleErrors = (err, res) => {
+  switch (err) {
+    case missingRequiredProperty:
+    case userAlreadyExist:
+    case invalidEmailFormat:
+    case passwordTooWeak:
+      res.status(400);
+      break;
+    case invalidLogin:
+      res.status(403);
+      break;
+    case notAcceptable:
+      res.status(406);
+      break;
+    default:
+      res.status(500);
+      res.set('Content-Type', 'application/json');
+      res.json({ Error: serverError.message });
+      return;
+  }
+  res.set('Content-Type', 'application/json');
+  res.json({ Error: err.message });
+}
 
 export {
   serverError,
@@ -14,4 +45,5 @@ export {
   userAlreadyExist,
   invalidEmailFormat,
   passwordTooWeak,
+  handleErrors,
 }
