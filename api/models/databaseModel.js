@@ -1,4 +1,5 @@
-import { Datastore } from '@google-cloud/datastore'
+import { Datastore } from '@google-cloud/datastore';
+import { API_URL } from '../constants.js';
 const datastore = new Datastore();
 
 // Get the Datastore key
@@ -61,11 +62,24 @@ const query = async (kind, attribute, value) => {
 //   await datastore.delete(key);
 // }
 
+const displayEntity = (id, data, kind) => {
+
+  const entityId = {};
+  entityId[`${kind}Id`] = id;
+
+  return {
+    ...entityId,
+    ...data,
+    self: `${API_URL}${kind}s/${id}`
+  }
+}
+
 export {
   getId,
   create,
   view,
   // update,
   // remove,
-  query
+  query,
+  displayEntity,
 }

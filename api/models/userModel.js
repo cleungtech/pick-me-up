@@ -1,5 +1,4 @@
 import * as database from './databaseModel.js';
-import { API_URL } from '../constants.js';
 import { createUserAuth0, loginAuth0 } from './authorizationModel.js';
 import { 
   missingRequiredProperty,
@@ -7,6 +6,7 @@ import {
   forbidden,
 } from '../customErrors.js';
 import jwt_decode from 'jwt-decode';
+import { displayEntity } from './databaseModel.js';
 
 const USER = 'user';
 
@@ -20,7 +20,7 @@ const userModel = {
         name: user.name,
         email: user.email,
       };
-      return displayUser(userId, userData);
+      return displayEntity(userId, userData, USER);
     })
     return usersData;
   },
@@ -40,7 +40,7 @@ const userModel = {
       ...userData
     });
 
-    return displayUser(userId, userData);
+    return displayEntity(userId, userData, USER);
   },
 
   login: async (username, password) => {
@@ -54,11 +54,11 @@ const userModel = {
     const foundUser = (await database.query(USER, 'auth0Id', auth0Id))[0];
     if (!foundUser) throw invalidLogin;
 
-    return displayUser(database.getId(foundUser), {
+    return displayEntity(database.getId(foundUser), {
         name: foundUser.name,
         email: foundUser.email,
         jwt: response.id_token
-    })
+    }, USER);
   },
 
   viewUser: async (userId, auth0Id) => {
@@ -66,18 +66,10 @@ const userModel = {
     if (!foundUser) throw notFound;
     if (foundUser.auth0Id !== auth0Id) throw forbidden;
 
-    return displayUser(database.getId(foundUser), {
+    return displayEntity(database.getId(foundUser), {
       name: foundUser.name,
       email: foundUser.email,
-    })
-  }
-}
-
-const displayUser = (userId, userData) => {
-  return {
-    userId: userId,
-    ...userData,
-    self: `${API_URL}users/${userId}`
+    }, USER);
   }
 }
 
