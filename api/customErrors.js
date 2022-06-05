@@ -5,6 +5,7 @@ const invalidEmailFormat = new Error('Provided email is not valid');
 const passwordTooWeak = new Error('Provided password is too weak');
 const invalidPrice = new Error('Price must be a number');
 const invalidInventory = new Error('Inventory must be an non-negative integer');
+const nameNotUnique = new Error('Provided name is not unique');
 
 
 // Error code: 401
@@ -41,6 +42,7 @@ const handleErrors = (err, res) => {
       case passwordTooWeak:
       case invalidPrice:
       case invalidInventory:
+      case nameNotUnique:
         res.status(400);
         break;
       case invalidToken:
@@ -84,5 +86,6 @@ export {
   invalidMethod,
   invalidPrice,
   invalidInventory,
+  nameNotUnique,
   handleErrors,
 }

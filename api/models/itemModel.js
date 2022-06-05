@@ -3,6 +3,7 @@ import {
   missingRequiredProperty,
   invalidPrice,
   invalidInventory,
+  nameNotUnique,
 } from '../customErrors.js';
 import { isNumberObject } from 'util/types';
 
@@ -33,6 +34,9 @@ const itemModel = {
 
     if (!Number.isInteger(inventory) || inventory < 0)
       throw invalidInventory;
+
+    const foundItem = await database.query(ITEM, 'name', name);
+    if (foundItem.length > 0) throw nameNotUnique;
 
     const itemData = {
       name: name,
