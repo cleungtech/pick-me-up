@@ -16,7 +16,6 @@ const itemController = {
     } catch (err) {
       next(err);
     }
-
   },
 
   post: async (req, res, next) => {
@@ -35,7 +34,18 @@ const itemController = {
   },
 
   getItem: async (req, res, next) => {
+    try {
+      checkAcceptJson(req);   
+      const itemId = req.params?.itemId;
+      const itemData = await itemModel.viewItem(itemId);
+      res
+        .status(200)
+        .set('Content-Type', 'application/json')
+        .json(itemData);
 
+    } catch (err) {
+      next(err);
+    }
   },
 
   putItem: async (req, res, next) => {

@@ -4,6 +4,7 @@ import {
   missingRequiredProperty,
   invalidLogin,
   forbidden,
+  notFound,
 } from '../customErrors.js';
 import jwt_decode from 'jwt-decode';
 

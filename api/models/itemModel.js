@@ -4,6 +4,7 @@ import {
   invalidPrice,
   invalidInventory,
   nameNotUnique,
+  notFound,
 } from '../customErrors.js';
 import { isNumberObject } from 'util/types';
 
@@ -44,15 +45,10 @@ const itemModel = {
     return database.displayEntity(itemId, itemData, ITEM);
   },
 
-  viewItem: async (itemId, auth0Id) => {
-    // const foundItem = await database.view(USER, itemId);
-    // if (!foundItem) throw notFound;
-    // if (foundItem.auth0Id !== auth0Id) throw forbidden;
-
-    // return displayItem(database.getId(foundItem), {
-    //   name: foundItem.name,
-    //   email: foundItem.email,
-    // })
+  viewItem: async (itemId) => {
+    const foundItem = await database.view(ITEM, itemId);
+    if (!foundItem) throw notFound;
+    return database.displayEntity(itemId, foundItem, ITEM);
   }
 }
 
