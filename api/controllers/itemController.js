@@ -62,7 +62,16 @@ const itemController = {
   },
 
   patchItem: async (req, res, next) => {
-
+    try {
+      const itemId = req.params?.itemId;
+      const { name, price, inventory } = req.body;
+      await itemModel.updateItem(itemId, name, price, inventory, false);
+      res
+        .status(204)
+        .end();
+    } catch (err) {
+      next(err);
+    }
   },
 
   deleteItem: async (req, res, next) => {

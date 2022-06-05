@@ -56,15 +56,15 @@ const itemModel = {
       validateInventory(inventory);
 
     } else {
-      name && validateName(name);
-      name && await validateUniqueName(name, itemId);
-      price && validatePrice(price);
-      inventory && validateInventory(inventory);
+      name !== undefined && validateName(name);
+      name !== undefined && await validateUniqueName(name, itemId);
+      price !== undefined && validatePrice(price);
+      inventory !== undefined && validateInventory(inventory);
     }
 
-    if (name) foundItem.name = name;
-    if (price) foundItem.price = price;
-    if (inventory) foundItem.inventory = inventory;
+    if (name !== undefined) foundItem.name = name;
+    if (price !== undefined) foundItem.price = price;
+    if (inventory !== undefined) foundItem.inventory = inventory;
 
     await database.update(ITEM, foundItem);
   }
