@@ -1,9 +1,10 @@
 import * as database from './databaseModel.js';
 import { API_URL } from '../constants.js';
-import { createUserAuth0, loginAuth0, checkJWT } from './authorizationModel.js';
+import { createUserAuth0, loginAuth0 } from './authorizationModel.js';
 import { 
   missingRequiredProperty,
   invalidLogin,
+  forbidden,
 } from '../customErrors.js';
 import jwt_decode from 'jwt-decode';
 
@@ -51,15 +52,24 @@ const userModel = {
     const auth0Id = sub.slice(6); // remove "auth0|"
 
     const foundUser = (await database.query(USER, 'auth0Id', auth0Id))[0];
-
     if (!foundUser) throw invalidLogin;
 
-    return {
-      userId: database.getId(foundUser),
+    return displayUser(database.getId(foundUser), {
+        name: foundUser.name,
+        email: foundUser.email,
+        jwt: response.id_token
+    })
+  },
+
+  viewUser: async (userId, auth0Id) => {
+    const foundUser = await database.view(USER, userId);
+    if (!foundUser) throw notFound;
+    if (foundUser.auth0Id !== auth0Id) throw forbidden;
+
+    return displayUser(database.getId(foundUser), {
       name: foundUser.name,
       email: foundUser.email,
-      jwt: response.id_token
-    }
+    })
   }
 }
 
@@ -67,7 +77,7 @@ const displayUser = (userId, userData) => {
   return {
     userId: userId,
     ...userData,
-    self: `${API_URL}/users/${userId}`
+    self: `${API_URL}users/${userId}`
   }
 }
 

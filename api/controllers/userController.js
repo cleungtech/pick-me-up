@@ -45,6 +45,23 @@ const userController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  getUser: async (req, res, next) => {
+    try {
+
+      checkAcceptJson(req);
+      const auth0Id = req.auth?.sub.slice(6);      
+      const userId = req.params?.userId;
+      const userData = await userModel.viewUser(userId, auth0Id);
+      res
+        .status(200)
+        .set('Content-Type', 'application/json')
+        .json(userData);
+
+    } catch (err) {
+      next(err);
+    }
   }
 }
 

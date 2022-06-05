@@ -30,12 +30,12 @@ const create = async (kind, data) => {
   return key.id;
 }
 
-// // Get an entity by ID
-// const view = async (kind, id) => {
-//   const key = getKey(kind, id);
-//   const [ entity ] = await datastore.get(key);
-//   return entity;
-// }
+// Get an entity by ID
+const view = async (kind, id) => {
+  const key = getKey(kind, id);
+  const [ entity ] = await datastore.get(key);
+  return entity;
+}
 
 // Query all entities matching a particular attribute
 const query = async (kind, attribute, value) => {
@@ -64,7 +64,7 @@ const query = async (kind, attribute, value) => {
 export {
   getId,
   create,
-  // view,
+  view,
   // update,
   // remove,
   query

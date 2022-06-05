@@ -13,7 +13,7 @@ import jwksRsa from 'jwks-rsa';
 dotenv.config();
 
 const createUserAuth0 = async (name, email, password) => {
-  const response = await fetch(`${AUTH0_URL}/api/v2/users`,
+  const response = await fetch(`${AUTH0_URL}api/v2/users`,
       {
         method: 'POST',
         headers: {
@@ -48,7 +48,7 @@ const createUserAuth0 = async (name, email, password) => {
 }
 
 const loginAuth0 = async (username, password) => {
-  const response = await fetch(`${AUTH0_URL}/oauth/token`,
+  const response = await fetch(`${AUTH0_URL}oauth/token`,
     {
       method: 'POST',
       headers: {
@@ -74,7 +74,7 @@ const checkJWT = expressjwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `${AUTH0_URL}/.well-known/jwks.json`
+    jwksUri: `${AUTH0_URL}.well-known/jwks.json`
   }),
 
   // Validate the audience and the issuer.
