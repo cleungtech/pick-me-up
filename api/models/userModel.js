@@ -1,6 +1,6 @@
-import * as database from './database.js';
+import * as database from './databaseModel.js';
 import { API_URL } from '../constants.js';
-import { createUserAuth0, loginAuth0, checkJWT } from './auth0.js';
+import { createUserAuth0, loginAuth0, checkJWT } from './authorizationModel.js';
 import { 
   missingRequiredProperty,
   invalidLogin,
