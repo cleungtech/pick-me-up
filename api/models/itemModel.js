@@ -1,12 +1,12 @@
 import * as database from './databaseModel.js';
-import { 
+import {
   missingRequiredProperty,
   invalidPrice,
   invalidInventory,
   nameNotUnique,
   notFound,
+  invalidName,
 } from '../customErrors.js';
-import { isNumberObject } from 'util/types';
 
 const ITEM = 'item';
 const ITEMS_PER_PAGE = 5;
@@ -23,17 +23,10 @@ const itemModel = {
 
   createItem: async (name, price, inventory) => {
 
-    if (!name || price === undefined || inventory === undefined)
-      throw missingRequiredProperty;
-
-    if (typeof price !== 'number')
-      throw invalidPrice;
-
-    if (!Number.isInteger(inventory) || inventory < 0)
-      throw invalidInventory;
-
-    const foundItem = await database.queryAll(ITEM, 'name', name);
-    if (foundItem.length > 0) throw nameNotUnique;
+    validateName(name);
+    await validateUniqueName(name);
+    validatePrice(price);
+    validateInventory(inventory);
 
     const itemData = {
       name: name,
@@ -49,7 +42,55 @@ const itemModel = {
     const foundItem = await database.view(ITEM, itemId);
     if (!foundItem) throw notFound;
     return database.displayEntity(itemId, foundItem, ITEM);
+  },
+
+  updateItem: async (itemId, name, price, inventory, replaceAll) => {
+
+    const foundItem = await database.view(ITEM, itemId);
+    if (!foundItem) throw notFound;
+
+    if (replaceAll) {
+      validateName(name);
+      await validateUniqueName(name, itemId);
+      validatePrice(price);
+      validateInventory(inventory);
+
+    } else {
+      name && validateName(name);
+      name && await validateUniqueName(name, itemId);
+      price && validatePrice(price);
+      inventory && validateInventory(inventory);
+    }
+
+    if (name) foundItem.name = name;
+    if (price) foundItem.price = price;
+    if (inventory) foundItem.inventory = inventory;
+
+    await database.update(ITEM, foundItem);
   }
+}
+
+const validateName = (name) => {
+  if (name === undefined) throw missingRequiredProperty;
+  if (name.length === 0) throw invalidName;
+}
+
+const validateUniqueName = async (name, itemId) => {
+  const foundItem = await database.queryAll(ITEM, 'name', name);
+  if (foundItem.length > 0 && database.getId(foundItem[0]) !== itemId) {
+    throw nameNotUnique;
+  }
+}
+
+const validatePrice = (price) => {
+  if (price === undefined) throw missingRequiredProperty;
+  if (typeof price !== 'number') throw invalidPrice;
+}
+
+const validateInventory = (inventory) => {
+  if (inventory === undefined) throw missingRequiredProperty;
+  if (!Number.isInteger(inventory) || inventory < 0)
+    throw invalidInventory;
 }
 
 export default itemModel;

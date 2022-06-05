@@ -42,7 +42,7 @@ const view = async (kind, id) => {
 const viewAll = async (kind, numPerPage, pageCursor) => {
 
   const count = (await queryAll(kind)).length;
-  
+
   let query = datastore.createQuery(kind).limit(numPerPage);
   if (pageCursor) {
     query = query.start(decodeURIComponent(pageCursor));
@@ -72,12 +72,12 @@ const queryAll = async (kind, attribute, value) => {
   return entities;
 }
 
-// // Update an entity in Datastore
-// const update = async (kind, data) => {
-//   const id = data[Datastore.KEY].id;
-//   const key = getKey(kind, id);
-//   await datastore.save({ key: key, data: data });
-// }
+// Update an entity in Datastore
+const update = async (kind, data) => {
+  const id = data[Datastore.KEY].id;
+  const key = getKey(kind, id);
+  await datastore.save({ key: key, data: data });
+}
 
 // // Remove an entity in datastore
 // const remove = async (kind, id) => {
@@ -108,7 +108,7 @@ export {
   create,
   view,
   viewAll,
-  // update,
+  update,
   // remove,
   queryAll,
   displayEntity,

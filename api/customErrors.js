@@ -3,6 +3,7 @@ const missingRequiredProperty = new Error('Missing at least one required propert
 const userAlreadyExist = new Error('User with this email already exists');
 const invalidEmailFormat = new Error('Provided email is not valid');
 const passwordTooWeak = new Error('Provided password is too weak');
+const invalidName = new Error('Provided name is invalid');
 const invalidPrice = new Error('Price must be a number');
 const invalidInventory = new Error('Inventory must be an non-negative integer');
 const nameNotUnique = new Error('Provided name is not unique');
@@ -43,6 +44,7 @@ const handleErrors = (err, res) => {
       case invalidPrice:
       case invalidInventory:
       case nameNotUnique:
+      case invalidName:
         res.status(400);
         break;
       case invalidToken:
@@ -87,5 +89,6 @@ export {
   invalidPrice,
   invalidInventory,
   nameNotUnique,
+  invalidName,
   handleErrors,
 }

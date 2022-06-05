@@ -35,7 +35,7 @@ const itemController = {
 
   getItem: async (req, res, next) => {
     try {
-      checkAcceptJson(req);   
+      checkAcceptJson(req);
       const itemId = req.params?.itemId;
       const itemData = await itemModel.viewItem(itemId);
       res
@@ -49,7 +49,16 @@ const itemController = {
   },
 
   putItem: async (req, res, next) => {
-
+    try {
+      const itemId = req.params?.itemId;
+      const { name, price, inventory } = req.body;
+      await itemModel.updateItem(itemId, name, price, inventory, true);
+      res
+        .status(204)
+        .end();
+    } catch (err) {
+      next(err);
+    }
   },
 
   patchItem: async (req, res, next) => {
