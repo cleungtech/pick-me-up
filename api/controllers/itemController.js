@@ -75,7 +75,16 @@ const itemController = {
   },
 
   deleteItem: async (req, res, next) => {
+    try {
+      const itemId = req.params?.itemId;
+      await itemModel.deleteItem(itemId);
+      res
+        .status(204)
+        .end();
 
+    } catch (err) {
+      next(err);
+    }
   },
 }
 

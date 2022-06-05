@@ -67,6 +67,11 @@ const itemModel = {
     if (inventory !== undefined) foundItem.inventory = inventory;
 
     await database.update(ITEM, foundItem);
+  },
+
+  deleteItem: async (itemId) => {
+    if (!(await database.remove(ITEM, itemId)))
+      throw notFound;
   }
 }
 

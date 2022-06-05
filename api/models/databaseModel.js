@@ -79,11 +79,11 @@ const update = async (kind, data) => {
   await datastore.save({ key: key, data: data });
 }
 
-// // Remove an entity in datastore
-// const remove = async (kind, id) => {
-//   const key = getKey(kind, id);
-//   await datastore.delete(key);
-// }
+// Remove an entity in datastore
+const remove = async (kind, id) => {
+  const key = getKey(kind, id);
+  return (await datastore.delete(key))[0].indexUpdates > 0;
+}
 
 const displayEntity = (id, data, kind) => {
 
@@ -109,7 +109,7 @@ export {
   view,
   viewAll,
   update,
-  // remove,
+  remove,
   queryAll,
   displayEntity,
 }
