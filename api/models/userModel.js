@@ -87,6 +87,16 @@ const userModel = {
     if (!foundUser) throw notFound;
     foundUser.orders?.push(orderId);
     await database.update(USER, foundUser);
+  },
+
+  removeOrder: async (userId, orderId) => {
+    const foundUser = await database.view(USER, userId);
+    if (!foundUser) throw notFound;
+    for (let i = 0; i < foundUser.orders.length; i++){ 
+      if (foundUser.orders[i] === orderId)
+        foundUser.orders.splice(i, 1);
+    }
+    await database.update(USER, foundUser);
   }
 }
 

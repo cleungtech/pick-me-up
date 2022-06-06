@@ -94,20 +94,9 @@ const orderModel = {
     if (foundOrder.customerId !== customerId) throw forbidden;
     if (foundOrder.hasPickedUp) throw orderHasBeenPickedUp;
     await database.remove(ORDER, orderId);
+    await userModel.removeOrder(customerId, orderId);
   }
 }
-
-// const validateName = (name) => {
-//   if (name === undefined) throw missingRequiredProperty;
-//   if (name.length === 0) throw invalidName;
-// }
-
-// const validateUniqueName = async (name, orderId) => {
-//   const foundOrder = await database.queryAll(ITEM, 'name', name);
-//   if (foundOrder.length > 0 && database.getId(foundOrder[0]) !== orderId) {
-//     throw nameNotUnique;
-//   }
-// }
 
 const validateItems = async (newOrderItems, oldOrderItems) => {
 
