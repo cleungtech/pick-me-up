@@ -10,6 +10,7 @@ const nameNotUnique = new Error('Provided name is not unique');
 const outOfStock = new Error('One of the request items is out of stock');
 const invalidItemId = new Error('One of the request items does not exist');
 const invalidRequestTime = new Error('Invalid request time format or request time is earlier than the order date/time');
+const orderHasBeenPickedUp = new Error('This order has already been picked up');
 
 // Error code: 401
 const invalidToken = new Error('Missing or invalid authorization token')
@@ -50,6 +51,7 @@ const handleErrors = (err, res) => {
       case outOfStock:
       case invalidItemId:
       case invalidRequestTime:
+      case orderHasBeenPickedUp:
         res.status(400);
         break;
       case invalidToken:
@@ -98,5 +100,6 @@ export {
   outOfStock,
   invalidItemId,
   invalidRequestTime,
+  orderHasBeenPickedUp,
   handleErrors,
 }

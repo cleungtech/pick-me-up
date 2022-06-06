@@ -12,6 +12,7 @@ import {
   invalidItemId,
   invalidRequestTime,
   forbidden,
+  orderHasBeenPickedUp,
 } from '../customErrors.js';
 
 const ORDER = 'order';
@@ -66,6 +67,8 @@ const orderModel = {
 
     if (!foundOrder) throw notFound;
     if (foundOrder.customerId !== customerId) throw forbidden;
+
+    if (foundOrder.hasPickedUp) throw orderHasBeenPickedUp;
 
     if (replaceAll) {
       validateRequestTime(requestTime, foundOrder.orderTime);
