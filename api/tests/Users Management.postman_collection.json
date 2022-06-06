@@ -1,0 +1,995 @@
+{
+	"info": {
+		"_postman_id": "b0091974-0439-496b-a56b-08c0f8d229d8",
+		"name": "Pick Me Up - Users management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create User1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"const passwordCharSet = [upperCase, lowerCase, numbers, special];",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(1, 1, upperCase) + generateString(4, 8);",
+							"const email = `${name.toLowerCase()}@${generateString(4, 8)}.com`;",
+							"const password = passwordCharSet.reduce((password, charSet) => {",
+							"    return password + generateString(3, 5, charSet);",
+							"}, '');",
+							"",
+							"pm.environment.set('UserName1', name);",
+							"pm.environment.set('UserEmail1', email);",
+							"pm.environment.set('UserPassword1', password);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { userId, name, email, orders, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains user id', () => {",
+							"    pm.expect(userId).to.not.eql(undefined);",
+							"    pm.environment.set('UserId1', userId);",
+							"})",
+							"",
+							"pm.test('User\\'s name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('UserName1'));",
+							"})",
+							"",
+							"pm.test('User\\'s email is correct', () => {",
+							"    pm.expect(email).to.eql(pm.environment.get('UserEmail1'));",
+							"})",
+							"",
+							"pm.test('User\\'s order is an empty list', () => {",
+							"    pm.expect(orders).to.not.eql(undefined);",
+							"    pm.expect(orders.length).to.eql(0);",
+							"})",
+							"",
+							"pm.test('User\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(",
+							"        `${pm.environment.get('apiURL')}/users/${userId}`",
+							"    );",
+							"    pm.environment.set('UserSelfLink1', self);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName1}}\",\n  \"email\": \"{{UserEmail1}}\",\n  \"password\": \"{{UserPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User already exists",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'User with this email already exists'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName1}}\",\n  \"email\": \"{{UserEmail1}}\",\n  \"password\": \"{{UserPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User without name",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"const passwordCharSet = [upperCase, lowerCase, numbers, special];",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(1, 1, upperCase) + generateString(4, 8);",
+							"const email = `${name.toLowerCase()}@${generateString(4, 8)}.com`;",
+							"const password = passwordCharSet.reduce((password, charSet) => {",
+							"    return password + generateString(3, 5, charSet);",
+							"}, '');",
+							"",
+							"pm.environment.set('UserName0', name);",
+							"pm.environment.set('UserEmail0', email);",
+							"pm.environment.set('UserPassword0', password);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"{{UserEmail0}}\",\n  \"password\": \"{{UserPassword0}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User without email",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName0}}\",\n  \"password\": \"{{UserPassword0}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User without password",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName0}}\",\n  \"email\": \"{{UserEmail0}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User with invalid email",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Provided email is not valid'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName0}}\",\n  \"email\": \"{{invalidUserName}}\",\n  \"password\": \"{{UserPassword0}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User with weak password",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Provided password is too weak'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName0}}\",\n  \"email\": \"{{UserEmail0}}\",\n  \"password\": \"{{invalidUserPassword}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User without accepting JSON",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName0}}\",\n  \"email\": \"{{UserEmail0}}\",\n  \"password\": \"{{UserPassword0}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User1 Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { userId, name, email, jwt, orders, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('User\\' id is correct', () => {",
+							"    pm.expect(userId).to.eql(pm.environment.get('UserId1'));",
+							"})",
+							"",
+							"pm.test('User\\' name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('UserName1'));",
+							"})",
+							"",
+							"pm.test('User\\' email is correct', () => {",
+							"    pm.expect(email).to.eql(pm.environment.get('UserEmail1'));",
+							"})",
+							"",
+							"pm.test('Response include a JSON Web Token', () => {",
+							"    pm.expect(jwt).to.not.eql(undefined);",
+							"    pm.environment.set('UserJwt1', jwt);",
+							"})",
+							"",
+							"pm.test('User\\'s order is an empty list', () => {",
+							"    pm.expect(orders).to.not.eql(undefined);",
+							"    pm.expect(orders.length).to.eql(0);",
+							"})",
+							"",
+							"pm.test('User\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(pm.environment.get('UserSelfLink1'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{UserEmail1}}\",\n    \"password\": \"{{UserPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login with invalid Username/Password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Invalid username and/or password'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{invalidUserName}}\",\n    \"password\": \"{{invalidUserPassword}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login without Username",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Invalid username and/or password'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"password\": \"{{UserPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login without Password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Invalid username and/or password'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{UserName1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login without accepting json",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{UserEmail1}}\",\n    \"password\": \"{{UserPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
