@@ -5,6 +5,7 @@ import {
   invalidLogin,
   forbidden,
   notFound,
+  invalidToken,
 } from '../customErrors.js';
 import jwt_decode from 'jwt-decode';
 
@@ -33,6 +34,7 @@ const userModel = {
     const userData = {
       name: response.name,
       email: response.email,
+      orders: []
     }
 
     const userId = await database.create(USER, {
@@ -57,6 +59,7 @@ const userModel = {
     return database.displayEntity(database.getId(foundUser), {
         name: foundUser.name,
         email: foundUser.email,
+        orders: foundUser.orders,
         jwt: response.id_token
     }, USER);
   },
@@ -69,7 +72,21 @@ const userModel = {
     return database.displayEntity(database.getId(foundUser), {
       name: foundUser.name,
       email: foundUser.email,
+      orders: foundUser.orders
     }, USER);
+  },
+
+  findUserId: async (auth0Id) => {
+    const foundUser = await database.queryAll(USER, 'auth0Id', auth0Id);
+    if (foundUser.length === 0) throw invalidToken;
+    return database.getId(foundUser[0]);
+  },
+
+  addOrder: async (userId, orderId) => {
+    const foundUser = await database.view(USER, userId);
+    if (!foundUser) throw notFound;
+    foundUser.orders?.push(orderId);
+    await database.update(USER, foundUser);
   }
 }
 

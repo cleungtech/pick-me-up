@@ -72,6 +72,16 @@ const itemModel = {
   deleteItem: async (itemId) => {
     if (!(await database.remove(ITEM, itemId)))
       throw notFound;
+  },
+
+  updateItemsInventory: async (items) => {
+    for (const itemId of Object.keys(items)) {
+      const requestAmount = items[itemId];
+      const itemInventory = (await itemModel.viewItem(itemId)).inventory;
+      let updatedInventory = itemInventory - requestAmount;
+      if (updatedInventory < 0) updatedInventory = 0;      
+      await itemModel.updateItem(itemId, undefined, undefined, updatedInventory, false);
+    }
   }
 }
 

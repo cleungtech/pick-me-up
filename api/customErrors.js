@@ -7,7 +7,9 @@ const invalidName = new Error('Provided name is invalid');
 const invalidPrice = new Error('Price must be a number');
 const invalidInventory = new Error('Inventory must be an non-negative integer');
 const nameNotUnique = new Error('Provided name is not unique');
-
+const outOfStock = new Error('One of the request items is out of stock');
+const invalidItemId = new Error('One of the request items does not exist');
+const invalidRequestTime = new Error('Invalid request time format or request time is earlier than the order date/time');
 
 // Error code: 401
 const invalidToken = new Error('Missing or invalid authorization token')
@@ -45,6 +47,9 @@ const handleErrors = (err, res) => {
       case invalidInventory:
       case nameNotUnique:
       case invalidName:
+      case outOfStock:
+      case invalidItemId:
+      case invalidRequestTime:
         res.status(400);
         break;
       case invalidToken:
@@ -90,5 +95,8 @@ export {
   invalidInventory,
   nameNotUnique,
   invalidName,
+  outOfStock,
+  invalidItemId,
+  invalidRequestTime,
   handleErrors,
 }
