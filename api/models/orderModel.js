@@ -31,10 +31,8 @@ const orderModel = {
   createOrder: async (auth0Id, items, requestTime) => {
 
     const customerId = await userModel.findUserId(auth0Id);
-
     const orderTime = Date.now();
     validateRequestTime(requestTime, orderTime);
-    
     await validateItems(items);
 
     const orderData = {
@@ -46,7 +44,6 @@ const orderModel = {
     }
 
     const orderId = await database.create(ORDER, orderData);
-    
     await userModel.addOrder(customerId, orderId);
     await itemModel.updateItemsInventory(items);  
     convertDatetime(orderData);
@@ -62,23 +59,30 @@ const orderModel = {
     return database.displayEntity(orderId, foundOrder, ORDER);
   },
 
-  // updateOrder: async (orderId, name, price, inventory, replaceAll) => {
+  updateOrder: async (auth0Id, orderId, items, requestTime, replaceAll) => {
 
-  //   const foundOrder = await database.view(ITEM, orderId);
-  //   if (!foundOrder) throw notFound;
+    const customerId = await userModel.findUserId(auth0Id);
+    const foundOrder = await database.view(ORDER, orderId);
 
-  //   if (replaceAll) {
-  //     validateName(name);
-  //     await validateUniqueName(name, orderId);
-  //     validatePrice(price);
-  //     validateInventory(inventory);
+    if (!foundOrder) throw notFound;
+    if (foundOrder.customerId !== customerId) throw forbidden;
 
-  //   } else {
-  //     name !== undefined && validateName(name);
-  //     name !== undefined && await validateUniqueName(name, orderId);
-  //     price !== undefined && validatePrice(price);
-  //     inventory !== undefined && validateInventory(inventory);
-  //   }
+    if (replaceAll) {
+      validateRequestTime(requestTime, foundOrder.orderTime);
+      await validateItems(items, foundOrder.items);
+
+    } else {
+      requestTime !== undefined && validateRequestTime(requestTime, foundOrder.orderTime);
+      items !== undefined && await validateItems(items, foundOrder.items);
+    }
+
+    if (requestTime !== undefined) foundOrder.requestTime = requestTime;
+    if (items !== undefined) {
+      await itemModel.updateItemsInventory(items, foundOrder.items);  
+      foundOrder.items = items;
+    }
+    await database.update(ORDER, foundOrder);
+  }
 
   //   if (name !== undefined) foundOrder.name = name;
   //   if (price !== undefined) foundOrder.price = price;
@@ -105,18 +109,23 @@ const orderModel = {
 //   }
 // }
 
-const validateItems = async (items) => {
+const validateItems = async (newOrderItems, oldOrderItems) => {
 
-  if (items === undefined) throw missingRequiredProperty;
+  if (newOrderItems === undefined)
+    throw missingRequiredProperty;
 
-  const itemsId = Object.keys(items);
 
-  for (const id of Object.keys(items)) {
+  for (const id of Object.keys(newOrderItems)) {
     try {
-      const requestAmount = items[id];
+      const newRequestAmount = newOrderItems[id];
+      let oldRequestAmount = 0;
+      if (oldOrderItems && oldOrderItems[id]) {
+        oldRequestAmount = oldOrderItems[id]
+      }
       const foundItem = await itemModel.viewItem(id);
       const itemInventory = foundItem.inventory;
-      if (itemInventory < requestAmount) throw outOfStock;
+      if (itemInventory + oldRequestAmount < newRequestAmount)
+        throw outOfStock;
 
     } catch (err) {
       if (err === notFound) throw invalidItemId;

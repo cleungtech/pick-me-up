@@ -10,7 +10,7 @@ orderRoutes.post('/', checkJWT, orderController.post);
 orderRoutes.all('/', invalidHttpMethod(['GET','POST']));
 
 orderRoutes.get('/:orderId', checkJWT, orderController.getOrder);
-// orderRoutes.put('/:orderId', orderController.putItem);
+orderRoutes.put('/:orderId', checkJWT, orderController.putOrder);
 // orderRoutes.patch('/:orderId', orderController.patchItem);
 // orderRoutes.delete('/:orderId', orderController.deleteItem);
 // orderRoutes.all('/:orderId', invalidHttpMethod(['GET', 'PUT', 'PATCH', 'DELETE']));

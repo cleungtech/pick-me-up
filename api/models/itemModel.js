@@ -74,13 +74,23 @@ const itemModel = {
       throw notFound;
   },
 
-  updateItemsInventory: async (items) => {
-    for (const itemId of Object.keys(items)) {
-      const requestAmount = items[itemId];
-      const itemInventory = (await itemModel.viewItem(itemId)).inventory;
-      let updatedInventory = itemInventory - requestAmount;
-      if (updatedInventory < 0) updatedInventory = 0;      
-      await itemModel.updateItem(itemId, undefined, undefined, updatedInventory, false);
+  updateItemsInventory: async (takeItems, addItems) => {
+
+    if (addItems) {
+      for (const id of Object.keys(addItems)) {
+        const addAmount = addItems[id];
+        const itemInventory = (await itemModel.viewItem(id)).inventory;
+        let updatedInventory = itemInventory + addAmount;    
+        await itemModel.updateItem(id, undefined, undefined, updatedInventory, false);
+      }
+    }
+    
+    for (const id of Object.keys(takeItems)) {
+      const subtractAmount = takeItems[id];
+      const itemInventory = (await itemModel.viewItem(id)).inventory;
+      let updatedInventory = itemInventory - subtractAmount; 
+      if (updatedInventory < 0) updatedInventory = 0;         
+      await itemModel.updateItem(id, undefined, undefined, updatedInventory, false);
     }
   }
 }

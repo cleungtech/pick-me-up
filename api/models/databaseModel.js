@@ -66,6 +66,7 @@ const viewAll = async (kind, numPerPage, pageCursor, attribute, value) => {
 const queryAll = async (kind, attribute, value) => {
 
   let query = datastore.createQuery(kind);
+  
   if (attribute && value)
     query = query.filter(attribute, '=', value);
   

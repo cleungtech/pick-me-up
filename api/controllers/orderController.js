@@ -23,6 +23,8 @@ const orderController = {
     try {
       checkAcceptJson(req);
       const auth0Id = req.auth?.sub.slice(6);
+
+     
       const { items, requestTime } = req.body;
       const orderData = await orderModel.createOrder(auth0Id, items, requestTime);
       res
@@ -51,18 +53,20 @@ const orderController = {
     }
   },
 
-  // putOrder: async (req, res, next) => {
-  //   try {
-  //     const orderId = req.params?.orderId;
-  //     const { name, price, inventory } = req.body;
-  //     await orderModel.updateOrder(orderId, name, price, inventory, true);
-  //     res
-  //       .status(204)
-  //       .end();
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // },
+  putOrder: async (req, res, next) => {
+    try {
+      const auth0Id = req.auth?.sub.slice(6);
+      const orderId = req.params?.orderId;
+      const { items, requestTime } = req.body;
+      await orderModel.updateOrder(auth0Id, orderId, items, requestTime, true);
+      res
+        .status(204)
+        .end();
+
+    } catch (err) {
+      next(err);
+    }
+  },
 
   // patchOrder: async (req, res, next) => {
   //   try {
