@@ -68,18 +68,19 @@ const orderController = {
     }
   },
 
-  // patchOrder: async (req, res, next) => {
-  //   try {
-  //     const orderId = req.params?.orderId;
-  //     const { name, price, inventory } = req.body;
-  //     await orderModel.updateOrder(orderId, name, price, inventory, false);
-  //     res
-  //       .status(204)
-  //       .end();
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // },
+  patchOrder: async (req, res, next) => {
+    try {
+      const auth0Id = req.auth?.sub.slice(6);
+      const orderId = req.params?.orderId;
+      const { items, requestTime } = req.body;
+      await orderModel.updateOrder(auth0Id, orderId, items, requestTime, false);
+      res
+        .status(204)
+        .end();
+    } catch (err) {
+      next(err);
+    }
+  },
 
   // deleteOrder: async (req, res, next) => {
   //   try {

@@ -67,7 +67,6 @@ const orderModel = {
 
     if (!foundOrder) throw notFound;
     if (foundOrder.customerId !== customerId) throw forbidden;
-
     if (foundOrder.hasPickedUp) throw orderHasBeenPickedUp;
 
     if (replaceAll) {
@@ -116,7 +115,6 @@ const validateItems = async (newOrderItems, oldOrderItems) => {
 
   if (newOrderItems === undefined)
     throw missingRequiredProperty;
-
 
   for (const id of Object.keys(newOrderItems)) {
     try {
