@@ -35,20 +35,21 @@ const orderController = {
     }
   },
 
-  // getOrder: async (req, res, next) => {
-  //   try {
-  //     checkAcceptJson(req);
-  //     const orderId = req.params?.orderId;
-  //     const orderData = await orderModel.viewOrder(orderId);
-  //     res
-  //       .status(200)
-  //       .set('Content-Type', 'application/json')
-  //       .json(orderData);
+  getOrder: async (req, res, next) => {
+    try {
+      checkAcceptJson(req);
+      const auth0Id = req.auth?.sub.slice(6);
+      const orderId = req.params?.orderId;
+      const orderData = await orderModel.viewOrder(auth0Id, orderId);
+      res
+        .status(200)
+        .set('Content-Type', 'application/json')
+        .json(orderData);
 
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // },
+    } catch (err) {
+      next(err);
+    }
+  },
 
   // putOrder: async (req, res, next) => {
   //   try {

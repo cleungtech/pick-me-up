@@ -11,6 +11,7 @@ import {
   outOfStock,
   invalidItemId,
   invalidRequestTime,
+  forbidden,
 } from '../customErrors.js';
 
 const ORDER = 'order';
@@ -52,11 +53,14 @@ const orderModel = {
     return database.displayEntity(orderId, orderData, ORDER);
   },
 
-  // viewOrder: async (orderId) => {
-  //   const foundOrder = await database.view(ITEM, orderId);
-  //   if (!foundOrder) throw notFound;
-  //   return database.displayEntity(orderId, foundOrder, ITEM);
-  // },
+  viewOrder: async (auth0Id, orderId) => {
+    const customerId = await userModel.findUserId(auth0Id);
+    const foundOrder = await database.view(ORDER, orderId);
+    if (!foundOrder) throw notFound;
+    if (foundOrder.customerId !== customerId) throw forbidden;
+    convertDatetime(foundOrder);
+    return database.displayEntity(orderId, foundOrder, ORDER);
+  },
 
   // updateOrder: async (orderId, name, price, inventory, replaceAll) => {
 
