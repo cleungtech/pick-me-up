@@ -12,7 +12,7 @@ orderRoutes.all('/', invalidHttpMethod(['GET','POST']));
 orderRoutes.get('/:orderId', checkJWT, orderController.getOrder);
 orderRoutes.put('/:orderId', checkJWT, orderController.putOrder);
 orderRoutes.patch('/:orderId', checkJWT, orderController.patchOrder);
-// orderRoutes.delete('/:orderId', orderController.deleteItem);
-// orderRoutes.all('/:orderId', invalidHttpMethod(['GET', 'PUT', 'PATCH', 'DELETE']));
+orderRoutes.delete('/:orderId', checkJWT, orderController.deleteOrder);
+orderRoutes.all('/:orderId', invalidHttpMethod(['GET', 'PUT', 'PATCH', 'DELETE']));
 
 export default orderRoutes;

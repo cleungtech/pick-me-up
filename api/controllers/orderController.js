@@ -82,18 +82,19 @@ const orderController = {
     }
   },
 
-  // deleteOrder: async (req, res, next) => {
-  //   try {
-  //     const orderId = req.params?.orderId;
-  //     await orderModel.deleteOrder(orderId);
-  //     res
-  //       .status(204)
-  //       .end();
+  deleteOrder: async (req, res, next) => {
+    try {
+      const auth0Id = req.auth?.sub.slice(6);
+      const orderId = req.params?.orderId;
+      await orderModel.deleteOrder(auth0Id, orderId);
+      res
+        .status(204)
+        .end();
 
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // },
+    } catch (err) {
+      next(err);
+    }
+  },
 }
 
 export default orderController;

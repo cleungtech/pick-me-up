@@ -84,19 +84,17 @@ const orderModel = {
       foundOrder.items = items;
     }
     await database.update(ORDER, foundOrder);
+  },
+
+  deleteOrder: async (auth0Id, orderId) => {
+
+    const customerId = await userModel.findUserId(auth0Id);
+    const foundOrder = await database.view(ORDER, orderId);
+    if (!foundOrder) throw notFound;
+    if (foundOrder.customerId !== customerId) throw forbidden;
+    if (foundOrder.hasPickedUp) throw orderHasBeenPickedUp;
+    await database.remove(ORDER, orderId);
   }
-
-  //   if (name !== undefined) foundOrder.name = name;
-  //   if (price !== undefined) foundOrder.price = price;
-  //   if (inventory !== undefined) foundOrder.inventory = inventory;
-
-  //   await database.update(ITEM, foundOrder);
-  // },
-
-  // deleteOrder: async (orderId) => {
-  //   if (!(await database.remove(ITEM, orderId)))
-  //     throw notFound;
-  // }
 }
 
 // const validateName = (name) => {
