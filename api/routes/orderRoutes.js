@@ -5,9 +5,9 @@ import { checkJWT } from '../models/authorizationModel.js';
 
 const orderRoutes = express.Router();
 
-// orderRoutes.get('/', orderController.get);
+orderRoutes.get('/', checkJWT, orderController.get);
 orderRoutes.post('/', checkJWT, orderController.post);
-// orderRoutes.all('/', invalidHttpMethod(['GET','POST']));
+orderRoutes.all('/', invalidHttpMethod(['GET','POST']));
 
 // orderRoutes.get('/:orderId', orderController.getItem);
 // orderRoutes.put('/:orderId', orderController.putItem);

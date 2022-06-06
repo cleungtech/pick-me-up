@@ -39,14 +39,15 @@ const view = async (kind, id) => {
 }
 
 // Get all entities (with pagination)
-const viewAll = async (kind, numPerPage, pageCursor) => {
+const viewAll = async (kind, numPerPage, pageCursor, attribute, value) => {
 
-  const count = (await queryAll(kind)).length;
+  const count = (await queryAll(kind, attribute, value)).length;
 
   let query = datastore.createQuery(kind).limit(numPerPage);
-  if (pageCursor) {
+  if (pageCursor)
     query = query.start(decodeURIComponent(pageCursor));
-  }
+  if (attribute && value)
+    query = query.filter(attribute, '=', value);
   const [ entities, info ] = await datastore.runQuery(query);
 
   const results = { total: count };

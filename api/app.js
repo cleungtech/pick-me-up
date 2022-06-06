@@ -11,7 +11,7 @@ api.use('/items', itemRoutes);
 api.use('/orders', orderRoutes);
 
 api.use((err, req, res, next) => {
-  console.log(err);
+  // console.log(err);
   handleErrors(err, res);
 })
 

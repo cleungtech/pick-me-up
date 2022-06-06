@@ -18,13 +18,14 @@ const ORDERS_PER_PAGE = 5;
 
 const orderModel = {
 
-  // viewAllOrders: async (limit, cursor) => {
+  viewAllOrders: async (auth0Id, limit, cursor) => {
 
-  //   const numPerPage = limit ? limit : ITEMS_PER_PAGE;
-  //   const foundOrders = await database.viewAll(ITEM, numPerPage, cursor);
-
-  //   return foundOrders;
-  // },
+    const customerId = await userModel.findUserId(auth0Id);
+    const numPerPage = limit ? limit : ORDERS_PER_PAGE;
+    const foundOrders = await database.viewAll(ORDER, numPerPage, cursor, "customerId", customerId);
+    foundOrders.orders.forEach(convertDatetime);
+    return foundOrders;
+  },
 
   createOrder: async (auth0Id, items, requestTime) => {
 

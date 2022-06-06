@@ -3,20 +3,21 @@ import { checkAcceptJson } from './controllerHelpers.js';
 
 const orderController = {
 
-  // get: async (req, res, next) => {
-  //   try {
-  //     checkAcceptJson(req);
-  //     const { limit, cursor } = req.query;
-  //     const ordersData = await orderModel.viewAllOrders(limit, cursor);
-  //     res
-  //       .status(200)
-  //       .set('Content-Type', 'application/json')
-  //       .send(ordersData);
+  get: async (req, res, next) => {
+    try {
+      checkAcceptJson(req);
+      const auth0Id = req.auth?.sub.slice(6);
+      const { limit, cursor } = req.query;
+      const ordersData = await orderModel.viewAllOrders(auth0Id, limit, cursor);
+      res
+        .status(200)
+        .set('Content-Type', 'application/json')
+        .send(ordersData);
 
-  //   } catch (err) {
-  //     next(err);
-  //   }
-  // },
+    } catch (err) {
+      next(err);
+    }
+  },
 
   post: async (req, res, next) => {
     try {
