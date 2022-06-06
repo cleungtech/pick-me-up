@@ -1,0 +1,8899 @@
+{
+	"info": {
+		"_postman_id": "e1436994-a035-4ab1-9a37-fdc530c4aaac",
+		"name": "Pick Me Up",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create User1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"const passwordCharSet = [upperCase, lowerCase, numbers, special];",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(1, 1, upperCase) + generateString(4, 8);",
+							"const email = `${name.toLowerCase()}@${generateString(4, 8)}.com`;",
+							"const password = passwordCharSet.reduce((password, charSet) => {",
+							"    return password + generateString(3, 5, charSet);",
+							"}, '');",
+							"",
+							"pm.environment.set('UserName1', name);",
+							"pm.environment.set('UserEmail1', email);",
+							"pm.environment.set('UserPassword1', password);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { userId, name, email, orders, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains user id', () => {",
+							"    pm.expect(userId).to.not.eql(undefined);",
+							"    pm.environment.set('UserId1', userId);",
+							"})",
+							"",
+							"pm.test('User\\'s name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('UserName1'));",
+							"})",
+							"",
+							"pm.test('User\\'s email is correct', () => {",
+							"    pm.expect(email).to.eql(pm.environment.get('UserEmail1'));",
+							"})",
+							"",
+							"pm.test('User\\'s order is an empty list', () => {",
+							"    pm.expect(orders).to.not.eql(undefined);",
+							"    pm.expect(orders.length).to.eql(0);",
+							"})",
+							"",
+							"pm.test('User\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(",
+							"        `${pm.environment.get('apiURL')}/users/${userId}`",
+							"    );",
+							"    pm.environment.set('UserSelfLink1', self);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName1}}\",\n  \"email\": \"{{UserEmail1}}\",\n  \"password\": \"{{UserPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User already exists",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'User with this email already exists'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName1}}\",\n  \"email\": \"{{UserEmail1}}\",\n  \"password\": \"{{UserPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User without name",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"const passwordCharSet = [upperCase, lowerCase, numbers, special];",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(1, 1, upperCase) + generateString(4, 8);",
+							"const email = `${name.toLowerCase()}@${generateString(4, 8)}.com`;",
+							"const password = passwordCharSet.reduce((password, charSet) => {",
+							"    return password + generateString(3, 5, charSet);",
+							"}, '');",
+							"",
+							"pm.environment.set('UserName0', name);",
+							"pm.environment.set('UserEmail0', email);",
+							"pm.environment.set('UserPassword0', password);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"{{UserEmail0}}\",\n  \"password\": \"{{UserPassword0}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User without email",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName0}}\",\n  \"password\": \"{{UserPassword0}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User without password",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName0}}\",\n  \"email\": \"{{UserEmail0}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User with invalid email",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Provided email is not valid'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName0}}\",\n  \"email\": \"{{invalidUserName}}\",\n  \"password\": \"{{UserPassword0}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User with weak password",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Provided password is too weak'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName0}}\",\n  \"email\": \"{{UserEmail0}}\",\n  \"password\": \"{{invalidUserPassword}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User without accepting JSON",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName0}}\",\n  \"email\": \"{{UserEmail0}}\",\n  \"password\": \"{{UserPassword0}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User1 Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { userId, name, email, jwt, orders, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('User\\' id is correct', () => {",
+							"    pm.expect(userId).to.eql(pm.environment.get('UserId1'));",
+							"})",
+							"",
+							"pm.test('User\\' name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('UserName1'));",
+							"})",
+							"",
+							"pm.test('User\\' email is correct', () => {",
+							"    pm.expect(email).to.eql(pm.environment.get('UserEmail1'));",
+							"})",
+							"",
+							"pm.test('Response include a JSON Web Token', () => {",
+							"    pm.expect(jwt).to.not.eql(undefined);",
+							"    pm.environment.set('UserJwt1', jwt);",
+							"})",
+							"",
+							"pm.test('User\\'s order is an empty list', () => {",
+							"    pm.expect(orders).to.not.eql(undefined);",
+							"    pm.expect(orders.length).to.eql(0);",
+							"})",
+							"",
+							"pm.test('User\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(pm.environment.get('UserSelfLink1'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{UserEmail1}}\",\n    \"password\": \"{{UserPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login with invalid Username/Password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Invalid username and/or password'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{invalidUserName}}\",\n    \"password\": \"{{invalidUserPassword}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login without Username",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Invalid username and/or password'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"password\": \"{{UserPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login without Password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Invalid username and/or password'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{UserName1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login without accepting json",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{UserEmail1}}\",\n    \"password\": \"{{UserPassword1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View all users",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const usersData = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Each user contains userId, name, email, and self-link', () => {",
+							"    pm.expect(usersData.every((user) => {",
+							"        const { userId, name, email, self } = user;",
+							"        return userId && name && email && self;",
+							"    })).to.be.true;",
+							"})",
+							"",
+							"pm.test('Each user does not show the list of orders', () => {",
+							"    pm.expect(usersData.every((user) => {",
+							"        return !user.orders;",
+							"    })).to.be.true;",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View all users without accept JSON",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { userId, name, email, orders, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('User\\' id is correct', () => {",
+							"    pm.expect(userId).to.eql(pm.environment.get('UserId1'));",
+							"})",
+							"",
+							"pm.test('User\\' name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('UserName1'));",
+							"})",
+							"",
+							"pm.test('User\\' email is correct', () => {",
+							"    pm.expect(email).to.eql(pm.environment.get('UserEmail1'));",
+							"})",
+							"",
+							"pm.test('User\\'s order is an empty list', () => {",
+							"    pm.expect(orders).to.not.eql(undefined);",
+							"    pm.expect(orders.length).to.eql(0);",
+							"})",
+							"",
+							"pm.test('User\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(pm.environment.get('UserSelfLink1'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{UserSelfLink1}}",
+					"host": [
+						"{{UserSelfLink1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View User with invalid ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/users/{{invalidId}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"{{invalidId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View User without access token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing or invalid authorization token'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{UserSelfLink1}}",
+					"host": [
+						"{{UserSelfLink1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View User without accepting JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{UserSelfLink1}}",
+					"host": [
+						"{{UserSelfLink1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"const passwordCharSet = [upperCase, lowerCase, numbers, special];",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(1, 1, upperCase) + generateString(4, 8);",
+							"const email = `${name.toLowerCase()}@${generateString(4, 8)}.com`;",
+							"const password = passwordCharSet.reduce((password, charSet) => {",
+							"    return password + generateString(3, 5, charSet);",
+							"}, '');",
+							"",
+							"pm.environment.set('UserName2', name);",
+							"pm.environment.set('UserEmail2', email);",
+							"pm.environment.set('UserPassword2', password);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { userId, name, email, self, orders } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains user id', () => {",
+							"    pm.expect(userId).to.not.eql(undefined);",
+							"    pm.environment.set('UserId2', userId);",
+							"})",
+							"",
+							"pm.test('User\\' name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('UserName2'));",
+							"})",
+							"",
+							"pm.test('User\\' email is correct', () => {",
+							"    pm.expect(email).to.eql(pm.environment.get('UserEmail2'));",
+							"})",
+							"",
+							"pm.test('User\\'s order is an empty list', () => {",
+							"    pm.expect(orders).to.not.eql(undefined);",
+							"    pm.expect(orders.length).to.eql(0);",
+							"})",
+							"",
+							"pm.test('User\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(",
+							"        `${pm.environment.get('apiURL')}/users/${userId}`",
+							"    );",
+							"    pm.environment.set('UserSelfLink2', self);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{UserName2}}\",\n  \"email\": \"{{UserEmail2}}\",\n  \"password\": \"{{UserPassword2}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User2 Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { userId, name, email, jwt, orders, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('User\\' id is correct', () => {",
+							"    pm.expect(userId).to.eql(pm.environment.get('UserId2'));",
+							"})",
+							"",
+							"pm.test('User\\' name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('UserName2'));",
+							"})",
+							"",
+							"pm.test('User\\' email is correct', () => {",
+							"    pm.expect(email).to.eql(pm.environment.get('UserEmail2'));",
+							"})",
+							"",
+							"pm.test('Response include a JSON Web Token', () => {",
+							"    pm.expect(jwt).to.not.eql(undefined);",
+							"    pm.environment.set('UserJwt2', jwt);",
+							"})",
+							"",
+							"pm.test('User\\'s order is an empty list', () => {",
+							"    pm.expect(orders).to.not.eql(undefined);",
+							"    pm.expect(orders.length).to.eql(0);",
+							"})",
+							"",
+							"pm.test('User\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(pm.environment.get('UserSelfLink2'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{UserEmail2}}\",\n    \"password\": \"{{UserPassword2}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User2 viewing User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", () => {",
+							"    pm.response.to.have.status(403);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Forbidden - You don\\'t have permission to access this resource'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{UserSelfLink1}}",
+					"host": [
+						"{{UserSelfLink1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid method: users/",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const getAll = (key) => {",
+							"    let result = [];",
+							"    key = key.toLowerCase();",
+							"    pm.response.headers.each((header) => {",
+							"        if (String(header.key).toLowerCase() === key) {",
+							"            result.push(header.valueOf());",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"pm.test(\"Status code is 405\", () => {",
+							"    pm.response.to.have.status(405);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Method Not Allowed'",
+							"    );",
+							"})",
+							"",
+							"pm.test('Response include Accept header with allowed methods', () => {",
+							"    const allowedMethods = getAll('Accept');",
+							"    pm.expect(allowedMethods).to.include('GET');",
+							"    pm.expect(allowedMethods).to.include('POST');",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/users",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid method: users/login",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const getAll = (key) => {",
+							"    let result = [];",
+							"    key = key.toLowerCase();",
+							"    pm.response.headers.each((header) => {",
+							"        if (String(header.key).toLowerCase() === key) {",
+							"            result.push(header.valueOf());",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"pm.test(\"Status code is 405\", () => {",
+							"    pm.response.to.have.status(405);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Method Not Allowed'",
+							"    );",
+							"})",
+							"",
+							"pm.test('Response include Accept header with allowed methods', () => {",
+							"    const allowedMethods = getAll('Accept');",
+							"    pm.expect(allowedMethods).to.include('POST');",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/users/login",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid method: users/:userId",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const getAll = (key) => {",
+							"    let result = [];",
+							"    key = key.toLowerCase();",
+							"    pm.response.headers.each((header) => {",
+							"        if (String(header.key).toLowerCase() === key) {",
+							"            result.push(header.valueOf());",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"pm.test(\"Status code is 405\", () => {",
+							"    pm.response.to.have.status(405);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Method Not Allowed'",
+							"    );",
+							"})",
+							"",
+							"pm.test('Response include Accept header with allowed methods', () => {",
+							"    const allowedMethods = getAll('Accept');",
+							"    pm.expect(allowedMethods).to.include('GET');",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/users/{{UserId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"users",
+						"{{UserId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"const price = Math.floor(Math.random() * (10000 - 100) + 0) / 100;",
+							"const inventory = Math.floor(Math.random() * (20 - 1) + 1);",
+							"",
+							"pm.environment.set('ItemName1', name);",
+							"pm.environment.set('ItemPrice1', price);",
+							"pm.environment.set('ItemInventory1', inventory);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains item id', () => {",
+							"    pm.expect(itemId).to.not.eql(undefined);",
+							"    pm.environment.set('ItemId1', itemId);",
+							"})",
+							"",
+							"pm.test('Item\\'s name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('ItemName1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s price is correct', () => {",
+							"    pm.expect(price).to.eql(pm.environment.get('ItemPrice1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    pm.expect(inventory).to.eql(pm.environment.get('ItemInventory1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(",
+							"        `${pm.environment.get('apiURL')}/items/${itemId}`",
+							"    );",
+							"    pm.environment.set('ItemSelfLink1', self);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName1}}\",\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item with duplicate name",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Provided name is not unique'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName1}}\",\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item with empty string name",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Provided name is invalid'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"\",\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item without name",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item without price",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"",
+							"pm.environment.set('ItemName0', name);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName0}}\",\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item without inventory",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName0}}\",\n  \"price\": {{ItemPrice1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item with invalid price",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Price must be a number'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName0}}\",\n  \"price\": \"{{invalidPrice}}\",\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item with invalid inventory",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Inventory must be an non-negative integer'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName0}}\",\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{invalidInventory}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item without accepting JSON",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName0}}\",\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View all Items",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { total, items, next } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Response contains total number of items', () => {",
+							"    pm.expect(total).to.not.eql(undefined);",
+							"})",
+							"",
+							"pm.test('Number of items is correct', () => {",
+							"    pm.expect(items.length).to.eql(5);",
+							"})",
+							"",
+							"pm.test('Response contains a link to next page', () => {",
+							"    pm.expect(next).to.not.eql(undefined);",
+							"    pm.environment.set('ItemNextPage', next);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View next page of items",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { total, items, next } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Response contains total number of items', () => {",
+							"    pm.expect(total).to.not.eql(undefined);",
+							"})",
+							"",
+							"pm.test('Number of items is correct', () => {",
+							"    pm.expect(items.length).to.eql(5);",
+							"})",
+							"",
+							"pm.test('Response contains a link to next page', () => {",
+							"    pm.expect(next).to.not.eql(undefined);",
+							"    pm.environment.unset('ItemNextPage');",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{ItemNextPage}}",
+					"host": [
+						"{{ItemNextPage}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View all Items without accepting JSON",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View Item1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s id is correct', () => {",
+							"    pm.expect(itemId).to.eql(pm.environment.get('ItemId1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('ItemName1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s price is correct', () => {",
+							"    pm.expect(price).to.eql(pm.environment.get('ItemPrice1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    pm.expect(inventory).to.eql(pm.environment.get('ItemInventory1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(pm.environment.get('ItemSelfLink1'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View Item with incorrect ID",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{invalidId}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{invalidId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View Item without accepting JSON",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"const price = Math.floor(Math.random() * (10000 - 100) + 0) / 100;",
+							"const inventory = Math.floor(Math.random() * (20 - 1) + 1);",
+							"",
+							"pm.environment.set('ItemName2', name);",
+							"pm.environment.set('ItemPrice2', price);",
+							"pm.environment.set('ItemInventory2', inventory);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains item id', () => {",
+							"    pm.expect(itemId).to.not.eql(undefined);",
+							"    pm.environment.set('ItemId2', itemId);",
+							"})",
+							"",
+							"pm.test('Item\\'s name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('ItemName2'));",
+							"})",
+							"",
+							"pm.test('Item\\'s price is correct', () => {",
+							"    pm.expect(price).to.eql(pm.environment.get('ItemPrice2'));",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    pm.expect(inventory).to.eql(pm.environment.get('ItemInventory2'));",
+							"})",
+							"",
+							"pm.test('Item\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(",
+							"        `${pm.environment.get('apiURL')}/items/${itemId}`",
+							"    );",
+							"    pm.environment.set('ItemSelfLink2', self);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName2}}\",\n  \"price\": {{ItemPrice2}},\n  \"inventory\": {{ItemInventory2}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Item1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"const price = Math.floor(Math.random() * (10000 - 100) + 0) / 100;",
+							"const inventory = Math.floor(Math.random() * (20 - 1) + 1);",
+							"",
+							"pm.environment.set('ItemName1', name);",
+							"pm.environment.set('ItemPrice1', price);",
+							"pm.environment.set('ItemInventory1', inventory);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", () => {",
+							"    pm.response.to.have.status(204);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName1}}\",\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Item1 updates",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s id is correct', () => {",
+							"    pm.expect(itemId).to.eql(pm.environment.get('ItemId1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('ItemName1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s price is correct', () => {",
+							"    pm.expect(price).to.eql(pm.environment.get('ItemPrice1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    pm.expect(inventory).to.eql(pm.environment.get('ItemInventory1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(pm.environment.get('ItemSelfLink1'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Item with duplicate name",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Provided name is not unique'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName2}}\",\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Item with empty string name",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Provided name is invalid'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"\",\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Item without name",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Item without price",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName1}}\",\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Item without inventory",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName1}}\",\n  \"price\": {{ItemPrice1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item with invalid price Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Price must be a number'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName1}}\",\n  \"price\": \"{{invalidPrice}}\",\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item with invalid inventory Copy",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Inventory must be an non-negative integer'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName1}}\",\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{invalidInventory}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Item with invalid ID",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName1}}\",\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{invalidId}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{invalidId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify the name of Item1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"",
+							"pm.environment.set('ItemName1', name);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", () => {",
+							"    pm.response.to.have.status(204);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Item1 name change",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s id is correct', () => {",
+							"    pm.expect(itemId).to.eql(pm.environment.get('ItemId1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('ItemName1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s price is correct', () => {",
+							"    pm.expect(price).to.eql(pm.environment.get('ItemPrice1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    pm.expect(inventory).to.eql(pm.environment.get('ItemInventory1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(pm.environment.get('ItemSelfLink1'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify the price and inventory of Item1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const price = Math.floor(Math.random() * (10000 - 100) + 0) / 100;",
+							"const inventory = Math.floor(Math.random() * (20 - 1) + 1);",
+							"",
+							"pm.environment.set('ItemInventory1', inventory);",
+							"pm.environment.set('ItemPrice1', price);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", () => {",
+							"    pm.response.to.have.status(204);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"price\": {{ItemPrice1}},\n  \"inventory\": {{ItemInventory1}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Item1 price and inventory change",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s id is correct', () => {",
+							"    pm.expect(itemId).to.eql(pm.environment.get('ItemId1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('ItemName1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s price is correct', () => {",
+							"    pm.expect(price).to.eql(pm.environment.get('ItemPrice1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    pm.expect(inventory).to.eql(pm.environment.get('ItemInventory1'));",
+							"})",
+							"",
+							"pm.test('Item\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(pm.environment.get('ItemSelfLink1'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Item with duplicate name",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Provided name is not unique'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName2}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Item with empty string name",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Provided name is invalid'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Item with invalid price",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Price must be a number'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"price\": \"{{invalidPrice}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Item with invalid inventory",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Inventory must be an non-negative integer'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"inventory\": {{invalidInventory}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Item with invalid ID",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName1}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items/{{invalidId}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{invalidId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Item2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", () => {",
+							"    pm.response.to.have.status(204);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId2}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Item2 is deleted",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId2}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Item with invalid ID",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{invalidId}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{invalidId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid method: items/",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const getAll = (key) => {",
+							"    let result = [];",
+							"    key = key.toLowerCase();",
+							"    pm.response.headers.each((header) => {",
+							"        if (String(header.key).toLowerCase() === key) {",
+							"            result.push(header.valueOf());",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"pm.test(\"Status code is 405\", () => {",
+							"    pm.response.to.have.status(405);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Method Not Allowed'",
+							"    );",
+							"})",
+							"",
+							"pm.test('Response include Accept header with allowed methods', () => {",
+							"    const allowedMethods = getAll('Accept');",
+							"    pm.expect(allowedMethods).to.include('GET');",
+							"    pm.expect(allowedMethods).to.include('POST');",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid method: items/:itemId",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const getAll = (key) => {",
+							"    let result = [];",
+							"    key = key.toLowerCase();",
+							"    pm.response.headers.each((header) => {",
+							"        if (String(header.key).toLowerCase() === key) {",
+							"            result.push(header.valueOf());",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"pm.test(\"Status code is 405\", () => {",
+							"    pm.response.to.have.status(405);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Method Not Allowed'",
+							"    );",
+							"})",
+							"",
+							"pm.test('Response include Accept header with allowed methods', () => {",
+							"    const allowedMethods = getAll('Accept');",
+							"    pm.expect(allowedMethods).to.include('GET');",
+							"    pm.expect(allowedMethods).to.include('PUT');",
+							"    pm.expect(allowedMethods).to.include('PATCH');",
+							"    pm.expect(allowedMethods).to.include('DELETE');",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"const price = Math.floor(Math.random() * (10000 - 100) + 0) / 100;",
+							"const inventory = Math.floor(Math.random() * (20 - 1) + 1);",
+							"",
+							"pm.environment.set('ItemName2', name);",
+							"pm.environment.set('ItemPrice2', price);",
+							"pm.environment.set('ItemInventory2', inventory);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains item id', () => {",
+							"    pm.expect(itemId).to.not.eql(undefined);",
+							"    pm.environment.set('ItemId2', itemId);",
+							"})",
+							"",
+							"pm.test('Item\\'s name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('ItemName2'));",
+							"})",
+							"",
+							"pm.test('Item\\'s price is correct', () => {",
+							"    pm.expect(price).to.eql(pm.environment.get('ItemPrice2'));",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    pm.expect(inventory).to.eql(pm.environment.get('ItemInventory2'));",
+							"})",
+							"",
+							"pm.test('Item\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(",
+							"        `${pm.environment.get('apiURL')}/items/${itemId}`",
+							"    );",
+							"    pm.environment.set('ItemSelfLink2', self);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName2}}\",\n  \"price\": {{ItemPrice2}},\n  \"inventory\": {{ItemInventory2}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add order for User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { ",
+							"    orderId, ",
+							"    customerId, ",
+							"    items, ",
+							"    orderTime, ",
+							"    requestTime, ",
+							"    hasPickedUp,",
+							"    self",
+							"} = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains order id', () => {",
+							"    pm.expect(orderId).to.not.eql(undefined);",
+							"    pm.environment.set('OrderId1', orderId);",
+							"})",
+							"",
+							"pm.test('Customer\\'s id is correct', () => {",
+							"    pm.expect(customerId).to.eql(pm.environment.get('UserId1'));",
+							"})",
+							"",
+							"pm.test('Requested items are correct', () => {",
+							"    pm.expect(items[pm.environment.get('ItemId1')]).to.eql(1);",
+							"    pm.expect(items[pm.environment.get('ItemId2')]).to.eql(1);",
+							"})",
+							"",
+							"pm.test('Respond include request and order time', () => {",
+							"    pm.expect(orderTime).to.not.eql(undefined);",
+							"    pm.expect(requestTime).to.not.eql(undefined);",
+							"})",
+							"",
+							"pm.test('Order\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(",
+							"        `${pm.environment.get('apiURL')}/orders/${orderId}`",
+							"    );",
+							"    pm.environment.set('OrderSelfLink1', self);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 1,\n        \"{{ItemId2}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Order1 is added to User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { userId, name, email, orders, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('User\\' id is correct', () => {",
+							"    pm.expect(userId).to.eql(pm.environment.get('UserId1'));",
+							"})",
+							"",
+							"pm.test('User\\' name is correct', () => {",
+							"    pm.expect(name).to.eql(pm.environment.get('UserName1'));",
+							"})",
+							"",
+							"pm.test('User\\' email is correct', () => {",
+							"    pm.expect(email).to.eql(pm.environment.get('UserEmail1'));",
+							"})",
+							"",
+							"pm.test('User\\'s order is an empty list', () => {",
+							"    pm.expect(orders).to.not.eql(undefined);",
+							"    pm.expect(orders.length).to.eql(1);",
+							"    pm.expect(orders).to.include(pm.environment.get('OrderId1'));",
+							"})",
+							"",
+							"pm.test('User\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(pm.environment.get('UserSelfLink1'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{UserSelfLink1}}",
+					"host": [
+						"{{UserSelfLink1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Item1 inventory change",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    const previousItemInventory = pm.environment.get('ItemInventory1');",
+							"    pm.expect(inventory).to.eql(previousItemInventory-1);",
+							"    pm.environment.set('ItemInventory1', previousItemInventory-1);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Item2 inventory change",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    const previousItemInventory = pm.environment.get('ItemInventory2');",
+							"    pm.expect(inventory).to.eql(previousItemInventory-1);",
+							"    pm.environment.set('ItemInventory2', previousItemInventory-1);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId2}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add order without JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing or invalid authorization token'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 1,\n        \"{{ItemId2}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add order with invalid Item ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'One of the request items does not exist'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{invalidId}}\": 1,\n        \"{{ItemId2}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Order too many items",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'One of the request items is out of stock'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 100,\n        \"{{ItemId2}}\": 100\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Order request time is too early",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Invalid request time format or request time is earlier than the order date/time'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 1,\n        \"{{ItemId2}}\": 1\n    },\n    \"requestTime\": {{invalidTime}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Order request time is invalid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Invalid request time format or request time is earlier than the order date/time'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 1,\n        \"{{ItemId2}}\": 1\n    },\n    \"requestTime\": \"2022-09-02T21:10:39.001Z\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add order without accepting JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 1,\n        \"{{ItemId2}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item3",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"const price = Math.floor(Math.random() * (10000 - 100) + 0) / 100;",
+							"const inventory = Math.floor(Math.random() * (20 - 1) + 1);",
+							"",
+							"pm.environment.set('ItemName3', name);",
+							"pm.environment.set('ItemPrice3', price);",
+							"pm.environment.set('ItemInventory3', inventory);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains item id', () => {",
+							"    pm.expect(itemId).to.not.eql(undefined);",
+							"    pm.environment.set('ItemId3', itemId);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName3}}\",\n  \"price\": {{ItemPrice3}},\n  \"inventory\": {{ItemInventory3}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User1 order Item3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { orderId } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains order id', () => {",
+							"    pm.expect(orderId).to.not.eql(undefined);",
+							"    pm.environment.set('OrderId2', orderId);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId3}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item4",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"const price = Math.floor(Math.random() * (10000 - 100) + 0) / 100;",
+							"const inventory = Math.floor(Math.random() * (20 - 1) + 1);",
+							"",
+							"pm.environment.set('ItemName4', name);",
+							"pm.environment.set('ItemPrice4', price);",
+							"pm.environment.set('ItemInventory4', inventory);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains item id', () => {",
+							"    pm.expect(itemId).to.not.eql(undefined);",
+							"    pm.environment.set('ItemId4', itemId);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName4}}\",\n  \"price\": {{ItemPrice4}},\n  \"inventory\": {{ItemInventory4}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User1 order Item4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { orderId } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains order id', () => {",
+							"    pm.expect(orderId).to.not.eql(undefined);",
+							"    pm.environment.set('OrderId3', orderId);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId4}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item5",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"const price = Math.floor(Math.random() * (10000 - 100) + 0) / 100;",
+							"const inventory = Math.floor(Math.random() * (20 - 1) + 1);",
+							"",
+							"pm.environment.set('ItemName5', name);",
+							"pm.environment.set('ItemPrice5', price);",
+							"pm.environment.set('ItemInventory5', inventory);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains item id', () => {",
+							"    pm.expect(itemId).to.not.eql(undefined);",
+							"    pm.environment.set('ItemId5', itemId);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName5}}\",\n  \"price\": {{ItemPrice5}},\n  \"inventory\": {{ItemInventory5}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User1 order Item5",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { orderId } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains order id', () => {",
+							"    pm.expect(orderId).to.not.eql(undefined);",
+							"    pm.environment.set('OrderId4', orderId);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId5}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item6",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"const price = Math.floor(Math.random() * (10000 - 100) + 0) / 100;",
+							"const inventory = Math.floor(Math.random() * (20 - 1) + 1);",
+							"",
+							"pm.environment.set('ItemName6', name);",
+							"pm.environment.set('ItemPrice6', price);",
+							"pm.environment.set('ItemInventory6', inventory);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains item id', () => {",
+							"    pm.expect(itemId).to.not.eql(undefined);",
+							"    pm.environment.set('ItemId6', itemId);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName6}}\",\n  \"price\": {{ItemPrice6}},\n  \"inventory\": {{ItemInventory6}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User1 order Item6",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { orderId } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains order id', () => {",
+							"    pm.expect(orderId).to.not.eql(undefined);",
+							"    pm.environment.set('OrderId5', orderId);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId6}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Item7",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const upperCase ='ABCDEFGHIJKLMNOPQRSTUVWXYZ';",
+							"const lowerCase = 'abcdefghijklmnopqrstuvwxyz';",
+							"const numbers = '0123456789';",
+							"const special = '!@#$%^&*';",
+							"",
+							"const generateString = (minChar, maxChar, charSet=lowerCase) => {",
+							"    const length = Math.floor(Math.random() * (maxChar - minChar) + minChar);",
+							"    const randomStringArray = [];",
+							"    for (let i = 0; i < length; i++) {",
+							"        const randomCharIndex = Math.floor(Math.random() * charSet.length);",
+							"        const newRandomChar = charSet[randomCharIndex];",
+							"        randomStringArray.push(newRandomChar);",
+							"    }",
+							"    return randomStringArray.join('');",
+							"}",
+							"",
+							"const name = generateString(4, 8, upperCase+lowerCase);",
+							"const price = Math.floor(Math.random() * (10000 - 100) + 0) / 100;",
+							"const inventory = Math.floor(Math.random() * (20 - 1) + 1);",
+							"",
+							"pm.environment.set('ItemName7', name);",
+							"pm.environment.set('ItemPrice7', price);",
+							"pm.environment.set('ItemInventory7', inventory);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains item id', () => {",
+							"    pm.expect(itemId).to.not.eql(undefined);",
+							"    pm.environment.set('ItemId7', itemId);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"{{ItemName7}}\",\n  \"price\": {{ItemPrice7}},\n  \"inventory\": {{ItemInventory7}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User1 order Item7",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { orderId } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"",
+							"pm.test('Response contains order id', () => {",
+							"    pm.expect(orderId).to.not.eql(undefined);",
+							"    pm.environment.set('OrderId6', orderId);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId7}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View all orders for User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { total, orders, next } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Total number of orders is correct', () => {",
+							"    pm.expect(total).to.eql(6);",
+							"})",
+							"",
+							"pm.test('Number of orders displayed is correct', () => {",
+							"    pm.expect(orders.length).to.eql(5);",
+							"})",
+							"",
+							"pm.test('Each order is belong to the user logged in', () => {",
+							"    orders.forEach((order) => {",
+							"        pm.expect(order.customerId).to.eql(pm.environment.get('UserId1'));",
+							"    })",
+							"})",
+							"",
+							"pm.test('Response include a link to next page', () => {",
+							"    pm.expect(next).to.not.eql(undefined);",
+							"    pm.environment.set('NextPageOfOrders', next);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify the next page of orders",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { total, orders, next } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Total number of orders is correct', () => {",
+							"    pm.expect(total).to.eql(6);",
+							"})",
+							"",
+							"pm.test('Number of orders displayed is correct', () => {",
+							"    pm.expect(orders.length).to.eql(1);",
+							"})",
+							"",
+							"pm.test('Each order is belong to the user logged in', () => {",
+							"    orders.forEach((order) => {",
+							"        pm.expect(order.customerId).to.eql(pm.environment.get('UserId1'));",
+							"    })",
+							"})",
+							"",
+							"pm.test('Response does not include a link to next page', () => {",
+							"    pm.expect(next).to.eql(undefined);",
+							"    pm.environment.unset('NextPageOfOrders', next);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{NextPageOfOrders}}",
+					"host": [
+						"{{NextPageOfOrders}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View orders without JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing or invalid authorization token'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View orders without accepting JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View all orders for User2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { total, orders, next } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Total number of orders is correct', () => {",
+							"    pm.expect(total).to.eql(0);",
+							"})",
+							"",
+							"pm.test('Number of orders displayed is correct', () => {",
+							"    pm.expect(orders.length).to.eql(0);",
+							"})",
+							"",
+							"pm.test('Response does not include a link to next page', () => {",
+							"    pm.expect(next).to.eql(undefined);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View first order of User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { ",
+							"    orderId, ",
+							"    customerId, ",
+							"    items, ",
+							"    orderTime, ",
+							"    requestTime, ",
+							"    hasPickedUp,",
+							"    self",
+							"} = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Response contains order id', () => {",
+							"    pm.expect(orderId).to.eql(pm.environment.get('OrderId1'));",
+							"})",
+							"",
+							"pm.test('Customer\\'s id is correct', () => {",
+							"    pm.expect(customerId).to.eql(pm.environment.get('UserId1'));",
+							"})",
+							"",
+							"pm.test('Requested items are correct', () => {",
+							"    pm.expect(items[pm.environment.get('ItemId1')]).to.eql(1);",
+							"    pm.expect(items[pm.environment.get('ItemId2')]).to.eql(1);",
+							"})",
+							"",
+							"pm.test('Respond include request and order time', () => {",
+							"    pm.expect(orderTime).to.not.eql(undefined);",
+							"    pm.expect(requestTime).to.not.eql(undefined);",
+							"})",
+							"",
+							"pm.test('Order\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(",
+							"        `${pm.environment.get('apiURL')}/orders/${orderId}`",
+							"    );",
+							"    pm.environment.set('OrderSelfLink1', self);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View order with invalid ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{invalidId}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{invalidId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View single order without JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing or invalid authorization token'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "View order without accepting JSON",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 406\", () => {",
+							"    pm.response.to.have.status(406);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Accept header must include application/json'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User2 viewing Order by User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", () => {",
+							"    pm.response.to.have.status(403);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Forbidden - You don\\'t have permission to access this resource'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check inventory of Item3",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    const previousItemInventory = pm.environment.get('ItemInventory3');",
+							"    pm.expect(inventory).to.eql(previousItemInventory-1);",
+							"    pm.environment.set('ItemInventory3', previousItemInventory-1);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId3}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId3}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update the first order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", () => {",
+							"    pm.response.to.have.status(204);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId2}}\": 2,\n        \"{{ItemId3}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify the update of the first order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { ",
+							"    orderId, ",
+							"    customerId, ",
+							"    items, ",
+							"    orderTime, ",
+							"    requestTime, ",
+							"    hasPickedUp,",
+							"    self",
+							"} = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Response contains order id', () => {",
+							"    pm.expect(orderId).to.eql(pm.environment.get('OrderId1'));",
+							"})",
+							"",
+							"pm.test('Customer\\'s id is correct', () => {",
+							"    pm.expect(customerId).to.eql(pm.environment.get('UserId1'));",
+							"})",
+							"",
+							"pm.test('Requested items are correct', () => {",
+							"    pm.expect(items[pm.environment.get('ItemId1')]).to.eql(undefined);",
+							"    pm.expect(items[pm.environment.get('ItemId2')]).to.eql(2);",
+							"    pm.expect(items[pm.environment.get('ItemId3')]).to.eql(1);",
+							"})",
+							"",
+							"pm.test('Respond include request and order time', () => {",
+							"    pm.expect(orderTime).to.not.eql(undefined);",
+							"    pm.expect(requestTime).to.not.eql(undefined);",
+							"})",
+							"",
+							"pm.test('Order\\'s link to self is correct', () => {",
+							"    pm.expect(self).to.eql(",
+							"        `${pm.environment.get('apiURL')}/orders/${orderId}`",
+							"    );",
+							"    pm.environment.set('OrderSelfLink1', self);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify inventory of item1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    const previousItemInventory = pm.environment.get('ItemInventory1');",
+							"    pm.expect(inventory).to.eql(previousItemInventory+1);",
+							"    pm.environment.set('ItemInventory1', previousItemInventory+1);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify inventory of item2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    const previousItemInventory = pm.environment.get('ItemInventory2');",
+							"    pm.expect(inventory).to.eql(previousItemInventory-1);",
+							"    pm.environment.set('ItemInventory2', previousItemInventory-1);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId2}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify inventory of item3",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    const previousItemInventory = pm.environment.get('ItemInventory3');",
+							"    pm.expect(inventory).to.eql(previousItemInventory-1);",
+							"    pm.environment.set('ItemInventory3', previousItemInventory-1);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId3}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId3}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update order without JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing or invalid authorization token'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId2}}\": 2,\n        \"{{ItemId3}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update order without items",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update order without request time",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing at least one required property in the body'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId2}}\": 2,\n        \"{{ItemId3}}\": 1\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update order with invalid ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId2}}\": 2,\n        \"{{ItemId3}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{invalidId}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{invalidId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User 2 updating the order by User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", () => {",
+							"    pm.response.to.have.status(403);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Forbidden - You don\\'t have permission to access this resource'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId2}}\": 2,\n        \"{{ItemId3}}\": 1\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update order with too many items",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'One of the request items is out of stock'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 100,\n        \"{{ItemId2}}\": 100\n    },\n    \"requestTime\": 1819919439001\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update order with request time too early",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", () => {",
+							"    pm.response.to.have.status(400);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Invalid request time format or request time is earlier than the order date/time'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 1,\n        \"{{ItemId2}}\": 1\n    },\n    \"requestTime\": {{invalidTime}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify the first order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", () => {",
+							"    pm.response.to.have.status(204);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 1,\n        \"{{ItemId2}}\": 2,\n        \"{{ItemId3}}\": 1\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify inventory of item1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const { itemId, name, price, inventory, self } = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"",
+							"pm.test('Item\\'s inventory is correct', () => {",
+							"    const previousItemInventory = pm.environment.get('ItemInventory1');",
+							"    pm.expect(inventory).to.eql(previousItemInventory-1);",
+							"    pm.environment.set('ItemInventory1', previousItemInventory-1);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items/{{ItemId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items",
+						"{{ItemId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify order without JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", () => {",
+							"    pm.response.to.have.status(204);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 1,\n        \"{{ItemId2}}\": 2,\n        \"{{ItemId3}}\": 1\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify order without JWT Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 1,\n        \"{{ItemId2}}\": 2,\n        \"{{ItemId3}}\": 1\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{invalidId}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{invalidId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User2 modifying Order by User1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", () => {",
+							"    pm.response.to.have.status(403);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Forbidden - You don\\'t have permission to access this resource'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"items\": {\n        \"{{ItemId1}}\": 1,\n        \"{{ItemId2}}\": 2,\n        \"{{ItemId3}}\": 1\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete the first order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", () => {",
+							"    pm.response.to.have.status(204);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify deletion of Order 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId1}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete order without JWT",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Missing or invalid authorization token'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId2}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete order with invalid ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", () => {",
+							"    pm.response.to.have.status(404);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Not Found'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{invalidId}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{invalidId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User 2 deleting an order by User 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", () => {",
+							"    pm.response.to.have.status(403);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Forbidden - You don\\'t have permission to access this resource'",
+							"    );",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt2}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId2}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid method: /orders",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const getAll = (key) => {",
+							"    let result = [];",
+							"    key = key.toLowerCase();",
+							"    pm.response.headers.each((header) => {",
+							"        if (String(header.key).toLowerCase() === key) {",
+							"            result.push(header.valueOf());",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"pm.test(\"Status code is 405\", () => {",
+							"    pm.response.to.have.status(405);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Method Not Allowed'",
+							"    );",
+							"})",
+							"",
+							"pm.test('Response include Accept header with allowed methods', () => {",
+							"    const allowedMethods = getAll('Accept');",
+							"    pm.expect(allowedMethods).to.include('GET');",
+							"    pm.expect(allowedMethods).to.include('POST');",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/items",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Invalid method: /orders/:orderId",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const getAll = (key) => {",
+							"    let result = [];",
+							"    key = key.toLowerCase();",
+							"    pm.response.headers.each((header) => {",
+							"        if (String(header.key).toLowerCase() === key) {",
+							"            result.push(header.valueOf());",
+							"        }",
+							"    });",
+							"    return result;",
+							"}",
+							"",
+							"pm.test(\"Status code is 405\", () => {",
+							"    pm.response.to.have.status(405);",
+							"})",
+							"",
+							"pm.test('Error message is correct', () => {",
+							"    pm.expect(pm.response.json().Error).to.eql(",
+							"        'Method Not Allowed'",
+							"    );",
+							"})",
+							"",
+							"pm.test('Response include Accept header with allowed methods', () => {",
+							"    const allowedMethods = getAll('Accept');",
+							"    pm.expect(allowedMethods).to.include('GET');",
+							"    pm.expect(allowedMethods).to.include('PUT');",
+							"    pm.expect(allowedMethods).to.include('PATCH');",
+							"    pm.expect(allowedMethods).to.include('DELETE');",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{UserJwt1}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "COPY",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "{{apiURL}}/orders/{{OrderId2}}",
+					"host": [
+						"{{apiURL}}"
+					],
+					"path": [
+						"orders",
+						"{{OrderId2}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
